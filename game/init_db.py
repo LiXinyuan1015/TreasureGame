@@ -1,0 +1,110 @@
+import pymongo
+from pymongo import MongoClient
+from pymongo.errors import DuplicateKeyError
+from pymongo.errors import BulkWriteError
+
+def init_db(treasures):
+    #共63件工具，26件配饰
+    treasures_name = [{"name": "扫帚", "property": "T", "level": 1, "value": 1},
+                      {"name": "菜刀", "property": "T", "level": 1, "value": 2},
+                      {"name": "砍柴斧", "property": "T", "level": 1, "value": 3},
+                      {"name": "木棍", "property": "T", "level": 1, "value": 5},
+                      {"name": "粗制剑", "property": "T", "level": 1, "value": 7},
+                      {"name": "破匕首", "property": "T", "level": 1, "value": 8},
+                      {"name": "九阴假经", "property": "T", "level": 1, "value": 10},
+                      {"name": "鱼肠剑", "property": "T", "level": 2, "value": 11},
+                      {"name": "三板斧", "property": "T", "level": 2, "value": 12},
+                      {"name": "赤兔马", "property": "T", "level": 2, "value": 13},
+                      {"name": "丈八蛇矛", "property": "T", "level": 2, "value": 14},
+                      {"name": "方天画戟", "property": "T", "level": 2, "value": 17},
+                      {"name": "青龙偃月刀", "property": "T", "level": 2, "value": 17},
+                      {"name": "越王勾践剑", "property": "T", "level": 2, "value": 19},
+                      {"name": "阴阳倒乱刃法", "property": "T", "level": 3, "value": 21},
+                      {"name": "玉蜂针", "property": "T", "level": 3, "value": 23},
+                      {"name": "冰魄银针", "property": "T", "level": 3, "value": 23},
+                      {"name": "五毒神掌", "property": "T", "level": 3, "value": 24},
+                      {"name": "铁砂掌", "property": "T", "level": 3, "value": 26},
+                      {"name": "铁头功", "property": "T", "level": 3, "value": 26},
+                      {"name": "大伏魔拳", "property": "T", "level": 3, "value": 27},
+                      {"name": "君子剑", "property": "T", "level": 3, "value": 28},
+                      {"name": "淑女剑", "property": "T", "level": 3, "value": 28},
+                      {"name": "打神鞭", "property": "T", "level": 3, "value": 29},
+                      {"name": "武穆遗书", "property": "T", "level": 3, "value": 30},
+                      {"name": "弹指神通", "property": "T", "level": 4, "value": 31},
+                      {"name": "玉箫剑法", "property": "T", "level": 4, "value": 31},
+                      {"name": "碧海潮声曲", "property": "T", "level": 4, "value": 32},
+                      {"name": "九阴白骨爪", "property": "T", "level": 4, "value": 32},
+                      {"name": "乾坤大挪移", "property": "T", "level": 4, "value": 32},
+                      {"name": "紫冥神功", "property": "T", "level": 4, "value": 33},
+                      {"name": "凌波微步", "property": "T", "level": 4, "value": 33},
+                      {"name": "落英神剑掌", "property": "T", "level": 4, "value": 34},
+                      {"name": "易筋经", "property": "T", "level": 4, "value": 34},
+                      {"name": "打狗棒", "property": "T", "level": 4, "value": 35},
+                      {"name": "七十二路空明拳", "property": "T", "level": 4, "value": 36},
+                      {"name": "蛤蟆功", "property": "T", "level": 4, "value": 36},
+                      {"name": "一阳指", "property": "T", "level": 4, "value": 36},
+                      {"name": "先天功", "property": "T", "level": 4, "value": 36},
+                      {"name": "降龙十八掌", "property": "T", "level": 4, "value": 37},
+                      {"name": "龙象般若功", "property": "T", "level": 4, "value": 37},
+                      {"name": "双手左右互搏术", "property": "T", "level": 4, "value": 38},
+                      {"name": "玄铁重剑", "property": "T", "level": 4, "value": 38},
+                      {"name": "九阴真经", "property": "T", "level": 4, "value": 39},
+                      {"name": "九阳真经", "property": "T", "level": 4, "value": 39},
+                      {"name": "六脉神剑", "property": "T", "level": 4, "value": 40},
+                      {"name": "黯然销魂掌", "property": "T", "level": 4, "value": 40},
+                      {"name": "凤翅镏金镗", "property": "T", "level": 5, "value": 42},
+                      {"name": "擂鼓瓮金锤", "property": "T", "level": 5, "value": 43},
+                      {"name": "斯雷普尼尔", "property": "T", "level": 5, "value": 44},
+                      {"name": "列奥尼达斯之矛", "property": "T", "level": 5, "value": 45},
+                      {"name": "阿瑞斯战斧", "property": "T", "level": 5, "value": 45},
+                      {"name": "伏羲剑", "property": "T", "level": 5, "value": 46},
+                      {"name": "海神三叉戟", "property": "T", "level": 5, "value": 47},
+                      {"name": "黑帝斯之斧", "property": "T", "level": 5, "value": 47},
+                      {"name": "宙斯之盾", "property": "T", "level": 5, "value": 48},
+                      {"name": "雷霆", "property": "T", "level": 5, "value": 49},
+                      {"name": "苏鲁特之剑", "property": "T", "level": 6, "value": 52},
+                      {"name": "迦耶伯格", "property": "T", "level": 6, "value": 53},
+                      {"name": "阿萨神眼", "property": "T", "level": 6, "value": 55},
+                      {"name": "誓约胜利之剑", "property": "T", "level": 6, "value": 56},
+                      {"name": "妙尔尼尔", "property": "T", "level": 6, "value": 58},
+                      {"name": "冈格尼尔", "property": "T", "level": 6, "value": 60},
+                      {"name": "攻击护符", "property": "A", "level": 1, "value": 1},
+                      {"name": "防御护符", "property": "A", "level": 1, "value": 1},
+                      {"name": "速度护符", "property": "A", "level": 1, "value": 2},
+                      {"name": "传家宝", "property": "A", "level": 1, "value": 4},
+                      {"name": "高级攻击护符", "property": "A", "level": 2, "value": 6},
+                      {"name": "高级防御护符", "property": "A", "level": 2, "value": 6},
+                      {"name": "高级速度护符", "property": "A", "level": 2, "value": 7},
+                      {"name": "高级传家宝", "property": "A", "level": 2, "value": 9},
+                      {"name": "精良攻击护符", "property": "A", "level": 3, "value": 11},
+                      {"name": "精良防御护符", "property": "A", "level": 3, "value": 11},
+                      {"name": "精良速度护符", "property": "A", "level": 3, "value": 12},
+                      {"name": "精良传家宝", "property": "A", "level": 3, "value": 14},
+                      {"name": "毁灭符咒", "property": "A", "level": 4, "value": 16},
+                      {"name": "生命符咒", "property": "A", "level": 4, "value": 17},
+                      {"name": "秩序符咒", "property": "A", "level": 4, "value": 18},
+                      {"name": "阴阳符咒", "property": "A", "level": 4, "value": 19},
+                      {"name": "自我之石", "property": "A", "level": 4, "value": 20},
+                      {"name": "光之山钻石", "property": "A", "level": 5, "value": 21},
+                      {"name": "裹尸布", "property": "A", "level": 5, "value": 22},
+                      {"name": "无限手套", "property": "A", "level": 5, "value": 22},
+                      {"name": "宇宙之心", "property": "A", "level": 5, "value": 23},
+                      {"name": "十戒", "property": "A", "level": 5, "value": 24},
+                      {"name": "宇宙立方", "property": "A", "level": 6, "value": 26},
+                      {"name": "阿戈摩托之眼", "property": "A", "level": 6, "value": 27},
+                      {"name": "弥米尔之泪", "property": "A", "level": 6, "value": 28},
+                      {"name": "奥丁的祝福", "property": "A", "level": 6, "value": 30},
+                      ]
+    treasures.create_index([("name", pymongo.ASCENDING)], unique=True) # 建立unique索引
+    try:
+        treasures.insert_many(treasures_name) 
+        print("宝物数据库已更新")
+    except BulkWriteError or DuplicateKeyError:
+        print("宝物数据库重复更新")
+
+if __name__ == "__main__":
+    client = MongoClient('localhost', 27017)
+    players = client.game.players
+    markets = client.game.markets
+    treasures = client.game.treasures
+    init_db(treasures)
